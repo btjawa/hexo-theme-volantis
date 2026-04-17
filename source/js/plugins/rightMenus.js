@@ -1,6 +1,6 @@
 
 const RightMenus = {
-  defaultEvent: ['copyText', 'copyLink', 'copyPaste', 'copyAll', 'copyCut', 'copyImg', 'printMode', 'readMode'],
+  defaultEvent: ['copyText', 'copyLink', 'copyPaste', 'copyAll', 'copyCut', 'copyImg', 'printMode', 'readMode', 'prevArticle', 'nextArticle'],
   defaultGroup: ['navigation', 'inputBox', 'seletctText', 'elementCheck', 'elementImage', 'articlePage'],
   messageRightMenu: volantis.GLOBAL_CONFIG.plugins.message.enable && volantis.GLOBAL_CONFIG.plugins.message.rightmenu.enable,
   corsAnywhere: volantis.GLOBAL_CONFIG.plugins.rightmenus.options.corsAnywhere,
@@ -8,10 +8,12 @@ const RightMenus = {
   imgRegx: /\.(jpe?g|png|webp|svg|gif|jifi)(-|_|!|\?|\/)?.*$/,
 
   /**
-   * 加载右键菜单
+   * 初始化监听事件处理
    */
-  initialMenu: () => {
-    RightMenus.fun.init();
+  initEvent: () => {
+    RightMenus.fn.elementAppend();
+    RightMenus.fn.contextmenu();
+    RightMenus.fn.menuEvent();
   },
 
   /**
@@ -108,7 +110,7 @@ const RightMenus = {
 /**
  * 事件处理区域
  */
-RightMenus.fun = (() => {
+RightMenus.fn = (() => {
   const rightMenuConfig = volantis.GLOBAL_CONFIG.plugins.rightmenus;
 
   const
@@ -143,15 +145,6 @@ RightMenus.fun = (() => {
   const globalDataBackup = Object.assign({}, globalData);
 
   /**
-   * 初始化监听事件处理
-   */
-  fn.initEvent = () => {
-    fn.elementAppend();
-    fn.contextmenu();
-    fn.menuEvent();
-  }
-
-  /**
    * 预置元素设定
    */
   fn.elementAppend = () => {
@@ -175,6 +168,10 @@ RightMenus.fun = (() => {
       let screenHeight = document.documentElement.clientHeight || document.body.clientHeight;
 
       _rightMenuWrapper.style.display = 'block';
+      _rightMenuWrapper.style.transform = 'translateY(-50px)';
+      volantis.requestAnimationFrame(() => {
+        _rightMenuWrapper.style.transform = 'translateY(0px)';
+      });
       fn.menuControl(event);
 
       let menuWidth = _rightMenuContent.offsetWidth;
@@ -601,20 +598,26 @@ RightMenus.fun = (() => {
     }
   }
 
-  return {
-    init: fn.initEvent,
-    hideMenu: fn.hideMenu,
-    readMode: fn.readMode
+  fn.prevArticle = () => {
+    const href = document.querySelector('div.prev-next a.prev')?.href;
+    href && (window.location.href = href);
   }
+
+  fn.nextArticle = () => {
+    const href = document.querySelector('div.prev-next a.next')?.href;
+    href && (window.location.href = href);
+  }
+
+  return fn;
 })()
 
 Object.freeze(RightMenus);
 volantis.requestAnimationFrame(() => {
   if (document.readyState !== 'loading') {
-    RightMenus.initialMenu();
+    RightMenus.initEvent();
   } else {
     document.addEventListener("DOMContentLoaded", function () {
-      RightMenus.initialMenu();
+      RightMenus.initEvent();
     })
   }
 });
