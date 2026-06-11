@@ -817,6 +817,10 @@ plugins:
 
   busuanzi:
     enable: #true
+    site_pv: true
+    site_uv: true
+    page_pv: true
+    page_uv: true
 
   ######## Plugins for ...
   # Button Ripple Effect
